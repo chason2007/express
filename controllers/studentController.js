@@ -42,28 +42,47 @@ exports.getStudentById = async (req, res) => {
 exports.createStudent = async (req, res) => {
   try {
     const student = await Student.create(req.body);
-    res.status(201).json(student);
+    res.status(201).json({
+      status: "True",
+      timeOfHit: req.requestTimeOfHit,
+      data: student
+    })
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: "Failed",
+      msg: error.message,
+     });
   }
 };
 
 exports.updateStudent = async (req, res) => {
   try {
-    const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!student) return res.status(404).json({ error: "Not found" });
-    res.json(student);
+    const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(201).json({
+      status: "Success",
+      timeOfHit: req.requestTimeOfHit,
+      data: student
+    })
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({status: "Failed",
+    msg: error.message});
   }
 };
 
 exports.deleteStudent = async (req, res) => {
   try {
-    const student = await Student.findByIdAndDelete(req.params.id);
-    if (!student) return res.status(404).json({ error: "Not found" });
-    res.status(204).send();
+    await Student.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: "Success",
+      timeOfHit: req.requestTimeOfHit,
+      data: null
+    });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({status: "failed", 
+      msg: error.message
+    });
   }
 };
