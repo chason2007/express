@@ -34,6 +34,6 @@ class Student {
     fs.writeFileSync("Data.json", JSON.stringify(students));
     return true;
   }
-}
+}    
 
 module.exports = Student;
