@@ -2,69 +2,26 @@ const Student = require("../models/Student");
 const student = new Student();
 
 exports.getAllStudents = (req, res) => {
-  const students = student.getAll();
-  res.status(200).json({
-    status: "Sucessful",
-    length: students.length,
-    data: { jsonData: students }
-  });
+  res.json(student.getAll());
 };
 
 exports.getStudentById = (req, res) => {
-  const id = req.params.id * 1;
-  const data = student.getById(id);
-
-  if (!data) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid ID"
-    });
-  }
-
-  res.status(200).json({
-    status: "Sucessful",
-    data: { data }
-  });
+  const data = student.getById(req.params.id * 1);
+  if (!data) return res.status(404).json({ error: "Not found" });
+  res.json(data);
 };
 
 exports.createStudent = (req, res) => {
-  const newStudent = student.create(req.body);
-  res.status(201).json({
-    status: "Sucessful",
-    data: { jsonData: newStudent }
-  });
+  res.status(201).json(student.create(req.body));
 };
 
 exports.updateStudent = (req, res) => {
-  const id = req.params.id * 1;
-  const updatedStudent = student.update(id, req.body);
-
-  if (!updatedStudent) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid ID"
-    });
-  }
-
-  res.status(200).json({
-    status: "Sucessful",
-    data: { data: updatedStudent }
-  });
+  const updated = student.update(req.params.id * 1, req.body);
+  if (!updated) return res.status(404).json({ error: "Not found" });
+  res.json(updated);
 };
 
 exports.deleteStudent = (req, res) => {
-  const id = req.params.id * 1;
-  const deleted = student.delete(id);
-
-  if (!deleted) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Invalid ID"
-    });
-  }
-
-  res.status(204).json({
-    status: "Sucessful",
-    data: null
-  });
+  if (!student.delete(req.params.id * 1)) return res.status(404).json({ error: "Not found" });
+  res.status(204).send();
 };
