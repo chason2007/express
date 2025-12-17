@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
 
-const users = JSON.parse(fs.readFileSync(path.join(__dirname, '../User.json'), 'utf8'));
+const users = require('../models/userModel')
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRETKEY, {
@@ -10,14 +10,15 @@ const signToken = (id) => {
   });
 };
 
-exports.allUsers = (req, res) => {
+exports.allUsers = async (req, res) => {
+  const users = await users.find();
   res.status(200).json({
     status: "success",
-    data: users
+    data: {users}
   });
 };
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
     //1. get email and pass
     const {email, password} = req.body;
 
@@ -30,8 +31,9 @@ exports.login = (req, res) => {
     }
 
     //check user exists
-    const user = users.find((u)=>u.email===email && u.password===password)
-    if(!user){
+    const usr = await users.findOne({email}).select("+password")
+    //const user = users.find((u)=>u.email===email && u.password===password)
+    if(!usr && !(await usr.correctPassword(usr.password, password))){
         return res.status(401).json({
             status: "fail",
             message: "Incorrect email or password"
@@ -39,39 +41,42 @@ exports.login = (req, res) => {
     }
 
     //generate token
-    const token = signToken(user.id);
+    const token = signToken(usr._id);
     res.status(200).json({
         status: "success",
         token,
         data: {
-            email: user.email,
-            name: user.name,
-            role: user.role
+          userId: usr._id,
+            email: usr.email,
+            name: usr.name,
+            role: usr.role
         }
     });
 };
 
-exports.signup = (req, res) => {
-  const { name, email, password, confirmPassword, role } = req.body;
+exports.signup = async (req, res) => {
+  // const { name, email, password, confirmPassword, role } = req.body;
   
-  //check if user exists
-  const existingUser = users.find((u) => u.email === email);
-    if (existingUser) {
-    return res.status(400).json({
-      status: "fail",
-      message: "User already exists"
-    });
-  }
+  // //check if user exists
+  // const existingUser = users.find((u) => u.email === email);
+  //   if (existingUser) {
+  //   return res.status(400).json({
+  //     status: "fail",
+  //     message: "User already exists"
+  //   });
+  // }
 
-  const newUser = {
-    id: users.length + 1,
-    name,
-    email,
-    password,
-    role: role || "user"
-  };
+  // const newUser = {
+  //   id: users.length + 1,
+  //   name,
+  //   email,
+  //   password,
+  //   role: role || "user"
+  // };
   
-  users.push(newUser);
+  // users.push(newUser);
+
+  const newUser = await User.create(req.body);
   
   const token = signToken(newUser.id);
   res.status(201).json({

@@ -22,11 +22,6 @@ const userSchema = new mongoose.Schema(
       minlength: [8, "Password must be at least 8 characters long"],
       select: false,
     },
-    role: {
-      type: String,
-      enum: ["admin", "user"],
-      default: "user",
-    },
     confirmPassword: {
       type: String,
       required: [true, "Please confirm your password"],
@@ -37,14 +32,16 @@ const userSchema = new mongoose.Schema(
         message: "Passwords do not match",
       },
     },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    },
   },
   {
     timestamps: true,
   }
 );
-
-const User = mongoose.model("User", userSchema);
-module.exports = User;
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -53,6 +50,12 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
+
+const user = mongoose.model("User", userSchema);
+module.exports = user;
