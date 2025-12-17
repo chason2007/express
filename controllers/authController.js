@@ -16,10 +16,9 @@ exports.allUsers = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    //1. get email and pass
+  try {
     const {email, password} = req.body;
 
-    //check input
     if(!email || !password){
         return res.status(400).json({
             status: "fail",
@@ -27,7 +26,6 @@ exports.login = async (req, res) => {
         });
     }
 
-    //check user exists
     const usr = await User.findOne({email}).select("+password")
     if(!usr || !(await usr.correctPassword(password, usr.password))){
         return res.status(401).json({
@@ -36,7 +34,6 @@ exports.login = async (req, res) => {
         });
     }
 
-    //generate token
     const token = signToken(usr._id);
     res.status(200).json({
         status: "success",
@@ -48,40 +45,32 @@ exports.login = async (req, res) => {
             role: usr.role
         }
     });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    });
+  }
 };
 
 exports.signup = async (req, res) => {
-  // const { name, email, password, confirmPassword, role } = req.body;
-  
-  // //check if user exists
-  // const existingUser = users.find((u) => u.email === email);
-  //   if (existingUser) {
-  //   return res.status(400).json({
-  //     status: "fail",
-  //     message: "User already exists"
-  //   });
-  // }
-
-  // const newUser = {
-  //   id: users.length + 1,
-  //   name,
-  //   email,
-  //   password,
-  //   role: role || "user"
-  // };
-  
-  // users.push(newUser);
-
-  const newUser = await User.create(req.body);
-  
-  const token = signToken(newUser.id);
-  res.status(201).json({
-    status: "success",
-    token,
-    data: {
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role
-    }
-  });
+  try {
+    const newUser = await User.create(req.body);
+    
+    const token = signToken(newUser._id);
+    res.status(201).json({
+      status: "success",
+      token,
+      data: {
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role
+      }
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      message: error.message
+    });
+  }
 };
