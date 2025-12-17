@@ -67,5 +67,35 @@ exports.login = (req, res) => {
 };
 
 exports.signup = (req, res) => {
+  const { name, email, password, confirmPassword, role } = req.body;
+  
+  //check if user exists
+  const existingUser = users.find((u) => u.email === email);
+    if (existingUser) {
+    return res.status(400).json({
+      status: "fail",
+      message: "User already exists"
+    });
+  }
 
+  const newUser = {
+    id: users.length + 1,
+    name: name,
+    email: email,
+    password, password,
+    role: role || "user"
+  };
+  
+  users.push(newUser);
+  
+  const token = signToken(newUser.id);
+  res.status(201).json({
+    status: "success",
+    token,
+    data: {
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role
+    }
+  });
 };
