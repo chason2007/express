@@ -1,8 +1,5 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
-const path = require('path');
-
-const users = require('../models/userModel')
+const User = require('../models/userModel')
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRETKEY, {
@@ -11,7 +8,7 @@ const signToken = (id) => {
 };
 
 exports.allUsers = async (req, res) => {
-  const users = await users.find();
+  const users = await User.find();
   res.status(200).json({
     status: "success",
     data: {users}
@@ -31,9 +28,8 @@ exports.login = async (req, res) => {
     }
 
     //check user exists
-    const usr = await users.findOne({email}).select("+password")
-    //const user = users.find((u)=>u.email===email && u.password===password)
-    if(!usr && !(await usr.correctPassword(usr.password, password))){
+    const usr = await User.findOne({email}).select("+password")
+    if(!usr || !(await usr.correctPassword(password, usr.password))){
         return res.status(401).json({
             status: "fail",
             message: "Incorrect email or password"
