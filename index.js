@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
-const studentRoutes = require("./routes/studentRoutes");
+const studentRouter = require("./routes/studentRoutes");    
+const authRouter = require("./routes/authRoutes");
 
 app.use(express.json());
-app.use("/api/v3/students", studentRoutes);
+app.use("/api/v3/students", studentRouter);
 
 module.exports = app;
