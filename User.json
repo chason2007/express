@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "chase",
+    "email": "chase@chase.com",
+    "password": "abc.123",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "bala",
+    "email": "bala@chase.com",
+    "password": "bala.123",
+    "role": "user"
+  }
+]

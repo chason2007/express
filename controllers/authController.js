@@ -1,23 +1,8 @@
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
-const users = [
-  {
-    id: 1,
-    name: "chase",
-    email: "chase@chase.com",
-    password: "abc.123",
-    confirmPassword: "abc.123",
-    role: "admin",
-  },
-  {
-    id: 2,
-    name: "bala",
-    email: "bala@chase.com",
-    password: "bala.123",
-    confirmPassword: "bala.123",
-    role: "user",
-  },
-];
+const users = JSON.parse(fs.readFileSync(path.join(__dirname, '../User.json'), 'utf8'));
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRETKEY, {
@@ -80,9 +65,9 @@ exports.signup = (req, res) => {
 
   const newUser = {
     id: users.length + 1,
-    name: name,
-    email: email,
-    password, password,
+    name,
+    email,
+    password,
     role: role || "user"
   };
   
